@@ -1,0 +1,12 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: install apache2
+      yum: name=httpd state=present
+      ignore_errors: yes
+      register: results
+
+    - name: install apache2
+      when: results.failed
+      apt: name=apache2 update_cache=yes state=present

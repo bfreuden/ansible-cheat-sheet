@@ -1,0 +1,12 @@
+---
+- name: my first handler
+  hosts: all
+  vars:
+    - var1: cool stuff here
+    - var2: cool stuff there
+  tasks:
+    - name: echo suff
+      shell: echo "{{ var1 }} is var1 but var2 is {{ var2 }}" > /tmp/result.txt
+    - name: echo processor
+      shell: echo " {{ ansible_processor }}"
+

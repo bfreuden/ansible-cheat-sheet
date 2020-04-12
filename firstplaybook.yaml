@@ -1,0 +1,13 @@
+---
+# a playbook is a list of plays
+- name: my first play
+  # hosts to be targeted
+  hosts: all
+  # a play is a list of tasks
+  tasks:
+      # task have a name that is displayed by ansible during execution
+    - name: show uname
+      # here I am using the shell module with the following parameters
+      shell: uname -a > /tmp/results.txt
+    - name: show whoami
+      shell: whoami >> /tmp/results.txt

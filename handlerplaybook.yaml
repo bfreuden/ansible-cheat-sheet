@@ -1,0 +1,19 @@
+---
+- name: my first handler
+  hosts: mininuc
+  become: yes
+  tasks:
+    - name: install vsftpd on ubuntu
+      # run apt-get update then apt install latest version of vsftpd
+      apt: name=vsftpd update_cache=yes state=present
+      # if there is an error, keep going
+      ignore_errors: yes
+      # call this handler if the task is successful and has done something
+      # if many tasks notify this handler, it is called only once
+      notify: start vsftpd
+  handlers:
+    # tasks refer to handlers by name, so the name is important here
+    - name: start vsftpd
+      # we want the make sure the service will start on boot and that is is started
+      service: name=vsftpd enabled=yes state=started
+

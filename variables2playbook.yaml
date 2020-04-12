@@ -1,0 +1,24 @@
+---
+- name: use task output as variable
+  hosts: all
+  tasks:
+    - name: get GPU info
+      shell: lspci | grep ' VGA ' | grep -o NVIDIA
+      ignore_errors: yes
+      # save the result in a variable (it is a JSON object)
+      register: maybe_nvidia
+    - name: only if nvidia
+      # use 'when' to define a condition
+      when: maybe_nvidia.stdout == "NVIDIA"
+      # in the task we'll use the stdout of the output
+      # the debug module will display messages during execution
+      debug: msg="this machine has an NVIDIA GPU"
+
+      # extra:
+      # set a fact to prevent from having to do .stdout
+    - set_fact:
+        nvidia: "{{ maybe_nvidia.stdout }}"
+    - name: only if nvidia 2
+      # use the new fact
+      when: nvidia == "NVIDIA"
+      debug: msg="this machine has an NVIDIA GPU"
