@@ -327,18 +327,6 @@ Let's use a loop to install some packages:
         - apache2
 ```
 
-Let's show file content:
-```yaml
----
-- hosts: all
-  tasks:
-    - name: install packages
-      debug: msg={{ item }} 
-      with_files:
-        - file1.txt
-        - file2.txt
-```
-
 ## Role
 
 **Roles** are a special kind of playbook that are full self-contained with tasks, variables, files, etc... 
