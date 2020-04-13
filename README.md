@@ -53,7 +53,7 @@ for server in server1 server2 server3; do \
 ssh $USER@$server "mkdir .ssh ; chmod 700 .ssh ; echo \"`cat ~/.ssh/id_rsa.pub`\" >> .ssh/authorized_keys" ; \
 done
 ```
-It would probably better with (but not tested):
+It would probably be better with (but not tested):
 ```bash
 for server in server1 server2 server3; do \
 ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@$server ; \
