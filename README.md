@@ -519,8 +519,7 @@ Then define tasks of the apache role in **roles/apache/tasks/main.yml**:
 
 ```
 
-And finally define the site.yml that is extremely concise thanks to naming conventions:
-**site.yml**:
+And finally define the **site.yml** that is extremely concise thanks to naming conventions:
 ```yaml
 ---
 - hosts: all
