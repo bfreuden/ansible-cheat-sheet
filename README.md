@@ -1,5 +1,7 @@
 
-This is an Ansible cheat sheet based on this nice YouTube video list:
+Ansible is an IT automation software.
+
+This Ansible cheat sheet based on this nice YouTube video list:
 
 https://www.youtube.com/watch?v=GMzXAbT_wlk&list=PL4CwCXuy76Fe4Lll2ksYXGtupJNxpiBVV
 
