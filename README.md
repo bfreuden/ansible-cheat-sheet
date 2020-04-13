@@ -7,7 +7,7 @@ Official documentation:
 
 https://docs.ansible.com/
 
-This guide has been writing on Ubuntu 18.04
+This guide has been written on Ubuntu 18.04
 
 # Installation
 
