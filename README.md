@@ -66,9 +66,11 @@ Official documentation:
 
 https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html
 
-The default inventory is /etc/ansible/hosts
+The inventory is a file containing the list of managed machines.
 
-The inventory is a file containing a list of machines.
+The default inventory is in /etc/ansible/hosts.
+
+Here is an example:
 
 ```ini
 mail.example.com
@@ -86,7 +88,7 @@ three.example.com ansible_user=administrator
 [webservers2]
 www[01:50].example.com
 ```
-Same in yaml:
+Same example in yaml (you have the choice):
 ```yaml
 all:
   hosts:
@@ -120,7 +122,7 @@ An inventory can be dynamically generated from a script that will pull data from
 
 As you will discover below, Ansible playbooks will allow you to specify an expected state of managed machines.
 
-A playbooks expresses a desired state. So when a playbook is played twice, it does not do anything the second time.
+Playbooks express a desired state. So when a playbook is played twice, it does nothing the second time.
 
 But because Ansible is agentless, you have to remember applying your new playbooks to old machines. 
 
@@ -186,11 +188,6 @@ ansible-playbook firstplaybook.yaml
 You can have verbose output with -v:
 ```bash
 ansible-playbook -v firstplaybook.yaml
-```
-
-Playbooks have different ways to alter how it runs tasks: 
-```text
-with_items, failed_when, until, etc...
 ```
 
 ## Handler
@@ -417,9 +414,17 @@ But if you change the variables of the index.j2.html, it will detect a change.
 
 # Running ad-hoc commands 
 
-ansible <inventory> <options>
+You don't need to write ansible playbooks, you can directly run ad-hoc commands.
 
-Running a raw command on all machines:
+```bash
+ansible <inventory> <options>
+```
+
+Note that it would be a mistake to write scripts calling ad-hoc commands. In that case you probably need to write a playbook.
+
+## Examples
+
+Running a command on all machines:
 ```bash
 ansible all -a '/bin/date'
 ```
@@ -428,39 +433,34 @@ That's a shortcut for the **command** module:
 ```bash
 ansible all -m command -a '/bin/date'
 ```
-
+Ping all machines:
 ```bash
 ansible all -m ping
 ```
 
-Note the -b option to become run the command as sudo:
+Install a package (note the -b option to *become* admin):
 ```bash
 ansible -b all -m apt -a "name=openssl state=latest"
 ```
-This is better illustrated with:
+This is better illustrated with (second one we display "root"):
 ```bash
 ansible all -a "whoami"
 ansible all -b -a "whoami"
 ```
 
-Install (make sure) a package with apt:
+Install a package with yum:
 ```bash
-ansible all -b -m apt -a "name=apache2 state=present"
+ansible all -b -m yum -a "name=httpd state=present"
 ```
 
-Install (make sure) the latest version of a package with apt:
+Install the latest version of apache (make sure the latest version of apache2 is installed):
 ```bash
 ansible all -b -m apt -a "name=apache2 state=latest"
 ```
 
-Uninstall (make sure) a package with apt:
+Uninstall apache2 with apt (make sure apache2 is uninstalled):
 ```bash
 ansible all -b -m apt -a "name=apache2 state=absent"
-```
-
-Compared to Salt, this method will not work for CentOS machines where you have to use the yum module:
-```bash
-ansible all -b -m yum -a "name=httpd state=present"
 ```
 
 You can do a dry run using -C (check) option. If the module does not support check-mode, the task will be skipped.
