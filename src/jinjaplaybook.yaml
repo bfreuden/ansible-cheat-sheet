@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    file_version: 1.0
+  tasks:
+    - name: install apache2
+      apt: name=apache2 update_cache=yes state=present
+      notify: start apache2
+    - name: install index.html
+      # we're using the template module (using Jinja2)
+      template:
+        # this is a source file next to the playbook
+        src: index.j2.html
+        # the result of the template will on stored on the managed machine at this location
+        dest: /var/www/html/index.html
+        # you can specify a file mode
+        mode: 0777
+  handlers:
+    - name: start apache2
+      service: name=apache2 enabled=yes state=started

@@ -327,6 +327,58 @@ Let's use a loop to install some packages:
         - apache2
 ```
 
+## Jinja templates
+
+For a bit more detailed overview of Jinja templates, see:
+ 
+https://github.com/bfreuden/salt-cheat-sheet#jinja-temlates
+
+And more precisely the commented version of the salt state:
+ 
+https://github.com/bfreuden/salt-cheat-sheet#jinja-states
+
+Let's write a playbook using Jinja templates:
+```yaml
+---
+- hosts: all
+  become: yes
+  vars:
+    file_version: 1.0
+  tasks:
+    - name: install apache2
+      apt: name=apache2 update_cache=yes state=present
+      notify: start apache2
+    - name: install index.html
+      # we're using the template module (using Jinja2)
+      template:
+        # this is a source file next to the playbook
+        src: index.j2.html
+        # the result of the template will on stored on the managed machine at this location
+        dest: /var/www/html/index.html
+        # you can specify a file mode
+        mode: 0777
+  handlers:
+    - name: start apache2
+      service: name=apache2 enabled=yes state=started
+```
+And here is the **index.j2.html** file:
+```html
+<html>
+<center>
+    <h1>This computer hostname is {{ ansible_hostname }}</h1>
+    <h3>It is running {{ ansible_os_family }}</h3>
+    <small>This file version is {{ file_version }}</small>
+    {# This is a Jinja comment that will not end up in the generated file #}
+</center>
+</html>
+```
+This template is easy (only using variable substitutions and comments), but the Jinja language is very powerful: 
+you can use conditions, loops, etc...
+
+When ran for the first time, this playbook will create the index.html file. 
+When ran a second time it will do nothing because the file already exists with the expected content.
+But if you change the variables of the index.j2.html, it will detect a change.
+
 ## Role
 
 **Roles** are a special kind of playbook that are full self-contained with tasks, variables, files, etc... 

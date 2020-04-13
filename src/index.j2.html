@@ -1,0 +1,8 @@
+<html>
+<center>
+    <h1>This computer hostname is {{ ansible_hostname }}</h1>
+    <h3>It is running {{ ansible_os_family }}</h3>
+    <small>This file version is {{ file_version }}</small>
+    {# This is a Jinja comment that will not end up in the generated file #}
+</center>
+</html>
