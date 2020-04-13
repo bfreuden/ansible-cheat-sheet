@@ -60,7 +60,7 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@$server ; \
 done
 ```
 
-# Introduction
+# Machines
 
 ## Control node
 
