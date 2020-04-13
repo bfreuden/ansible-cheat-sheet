@@ -115,6 +115,26 @@ With Salt we probably would have put grains on our servers and targeted them by 
 
 An inventory can be dynamically generated from a script that will pull data from an external source.
 
+
+## Maintaining state & configuration drift
+
+As you will discover below, Ansible playbooks will allow you to specify an expected state of managed machines.
+
+A playbooks expresses a desired state. So when a playbook is played twice, it does not do anything the second time.
+
+But because Ansible is agentless, you have to remember applying your new playbooks to old machines. 
+
+If you forget to do so, old machines will not have the same configuration as the new ones. 
+
+This is called configuration drift.
+
+Salt (see https://github.com/bfreuden/salt-cheat-sheet) is a better solution to tackle configuration drift because each managed machine has an agent (called a minion) 
+ensuring the managed machine is always up-to-date.
+
+Salt is more complex than Ansible though (not to mention the minion is consuming a fair amount of RAM). So for small infrastructures Ansible is propably a better solution.
+
+Salt has a salt-ssh module quite similar to Ansible but, as a beginner, I found Ansible easier to use.  
+
 ## Module
 
 Modules control the things you're automating. They can act system files, packages, etc...
@@ -361,19 +381,31 @@ Let's write a playbook using Jinja templates:
     - name: start apache2
       service: name=apache2 enabled=yes state=started
 ```
-And here is the **index.j2.html** file:
+
+Let's add a computer_location variable to our inventory:
+```ini
+mail.example.com computer_location=home
+
+[webservers]
+foo.example.com computer_location=home
+bar.example.com computer_location=datacenter
+```
+
+And let's write this **index.j2.html** file:
 ```html
 <html>
 <center>
     <h1>This computer hostname is {{ ansible_hostname }}</h1>
+    <h2>It located at {{ computer_location }}</h2>
     <h3>It is running {{ ansible_os_family }}</h3>
     <small>This file version is {{ file_version }}</small>
     {# This is a Jinja comment that will not end up in the generated file #}
 </center>
 </html>
 ```
-This template is easy (only using variable substitutions and comments), but the Jinja language is very powerful: 
-you can use conditions, loops, etc...
+This template is only using variables (coming from many different sources: inventory, palybook, facts)  and comments
+
+But the Jinja language is very powerful: you can use conditions, loops, etc...
 
 When ran for the first time, this playbook will create the index.html file. 
 When ran a second time it will do nothing because the file already exists with the expected content.
@@ -432,11 +464,6 @@ ansible all -b -m yum -a "name=httpd state=present"
 ```
 
 You can do a dry run using -C (check) option. If the module does not support check-mode, the task will be skipped.
-
-# Maintaining state
-
-A playbooks expresses a desired state. When it is played twice, it does not do anything the second time.
-
 
 # Interesting modules
 
