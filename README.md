@@ -60,7 +60,7 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@$server ; \
 done
 ```
 
-# Concepts
+# Introduction
 
 ## Control node
 
@@ -124,6 +124,68 @@ With Salt we probably would have put grains on our servers and targeted them by 
 An inventory can be dynamically generated from a script that will pull data from an external source.
 
 
+# Running ad-hoc commands 
+
+Using ad-hoc commands Ansible will perform actions on multiple machines (using SSH).
+
+You do so by running the **ansible** program:
+```bash
+ansible <inventory> <options>
+```
+
+## Examples
+
+Running a command on all machines:
+```bash
+ansible all -a '/bin/date'
+```
+
+That's a shortcut for the **command** module:
+```bash
+ansible all -m command -a '/bin/date'
+```
+Ping all machines:
+```bash
+ansible all -m ping
+```
+
+Install a package (note the -b option to *become* admin):
+```bash
+ansible -b all -m apt -a "name=openssl state=latest"
+```
+This is better illustrated with (second one we display "root"):
+```bash
+ansible all -a "whoami"
+ansible all -b -a "whoami"
+```
+
+Install apache2 with yum on web servers:
+```bash
+ansible webservers -b -m yum -a "name=httpd state=present"
+```
+
+Install the latest version of apache2 with apt (make sure the latest version of apache2 is installed):
+```bash
+ansible webservers -b -m apt -a "name=apache2 state=latest"
+```
+
+Uninstall apache2 with apt (make sure apache2 is uninstalled):
+```bash
+ansible webservers -b -m apt -a "name=apache2 state=absent"
+```
+
+Copy files on multiple machines:
+```bash
+ansible all -m copy -a "src=/etc/hosts dest=/tmp/hosts"
+```
+You can do a dry run using -C (check) option. If the module does not support check-mode, the task will be skipped.
+
+# Playbooks
+
+It would be a mistake to write shell scripts calling ad-hoc commands. 
+
+If you feel the need to do so, then you probably want to write a playbook.
+
 ## Maintaining state & configuration drift
 
 As you will discover below, Ansible playbooks will allow you to specify an expected state of managed machines.
@@ -143,21 +205,17 @@ Salt is more complex than Ansible though (not to mention the minion is consuming
 
 Salt has a salt-ssh module quite similar to Ansible but, as a beginner, I found Ansible easier to use.  
 
-## Module
-
-Modules control the things you're automating. They can act system files, packages, etc...
-
-Basic structure is:
-```yaml
-module: directive1=value directive2=value
-```
-There are 450 modules by default in Ansible.
-
-
-## Playbook
+## Playbook structure
 
 Playbooks are yaml files describing the desired state of something.
-They are human and machine readable.
+
+You apply a playbook by running the **ansible-playbook** program:
+
+```bash
+ansible-playbook <playbook>
+```
+
+Playbooks are human and machine readable.
 
 **Playbooks** contains **plays**
 
@@ -169,7 +227,7 @@ They are human and machine readable.
  
  **Handlers** are triggered by tasks, and are run once at the end of **plays**, only if the task has made a change!
  
- Create a firstplaybook.yml file containing:
+ Create a **firstplaybook.yml** file containing:
  ```yaml
 ---
 # a playbook is a list of plays
@@ -195,6 +253,17 @@ You can have verbose output with -v:
 ```bash
 ansible-playbook -v firstplaybook.yml
 ```
+
+## Module
+
+Modules control the things you're automating. They can act system files, packages, etc...
+
+Basic structure is:
+```yaml
+module: directive1=value directive2=value
+```
+There are 450 modules by default in Ansible.
+
 
 ## Handler
 
@@ -569,59 +638,6 @@ Then you car refer to those roles in your playbooks:
 ```bash
 ansible-galaxy search apache
 ```
-
-# Running ad-hoc commands 
-
-You don't need to write ansible playbooks, you can directly run ad-hoc commands.
-
-```bash
-ansible <inventory> <options>
-```
-
-Note that it would be a mistake to write scripts calling ad-hoc commands. In that case you probably need to write a playbook.
-
-## Examples
-
-Running a command on all machines:
-```bash
-ansible all -a '/bin/date'
-```
-
-That's a shortcut for the **command** module:
-```bash
-ansible all -m command -a '/bin/date'
-```
-Ping all machines:
-```bash
-ansible all -m ping
-```
-
-Install a package (note the -b option to *become* admin):
-```bash
-ansible -b all -m apt -a "name=openssl state=latest"
-```
-This is better illustrated with (second one we display "root"):
-```bash
-ansible all -a "whoami"
-ansible all -b -a "whoami"
-```
-
-Install a package with yum:
-```bash
-ansible all -b -m yum -a "name=httpd state=present"
-```
-
-Install the latest version of apache (make sure the latest version of apache2 is installed):
-```bash
-ansible all -b -m apt -a "name=apache2 state=latest"
-```
-
-Uninstall apache2 with apt (make sure apache2 is uninstalled):
-```bash
-ansible all -b -m apt -a "name=apache2 state=absent"
-```
-
-You can do a dry run using -C (check) option. If the module does not support check-mode, the task will be skipped.
 
 # Interesting modules
 
