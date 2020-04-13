@@ -11,7 +11,7 @@
       # we're using the template module (using Jinja2)
       template:
         # this is a source file next to the playbook
-        src: index.j2.html
+        src: index.html.j2
         # the result of the template will on stored on the managed machine at this location
         dest: /var/www/html/index.html
         # you can specify a file mode

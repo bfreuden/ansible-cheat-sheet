@@ -1,0 +1,9 @@
+---
+# this will include all plays of the update_package_cache playbook in this playbook
+- include: update_package_cache.yml
+# remember a playbook is a list of plays (even if all examples so far only had one
+- hosts: all
+  become: yes
+  tasks:
+    # this will include the install_apache2 list of tasks in this playbook
+    - include: install_apache2.yml

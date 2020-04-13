@@ -1,13 +1,11 @@
 
-This is an Ansible cheat sheet.
+This is an Ansible cheat sheet based on this nice YouTube video list:
+
+https://www.youtube.com/watch?v=GMzXAbT_wlk&list=PL4CwCXuy76Fe4Lll2ksYXGtupJNxpiBVV
 
 Official documentation:
 
 https://docs.ansible.com/
-
-Very nice tutorial YouTube video list:
-
-https://www.youtube.com/watch?v=GMzXAbT_wlk&list=PL4CwCXuy76Fe4Lll2ksYXGtupJNxpiBVV
 
 This guide has been writing on Ubuntu 18.04
 
@@ -27,6 +25,14 @@ $ sudo apt install ansible
 ```
 
 On Ubuntu 18.04 the default Python is version 2 so Ansible will create a deprecation warning.
+
+# Tooling
+
+There seems to be an really nice VSCode extension for Ansible.
+
+Checkout the video down this page, you'll see code completion:
+
+https://marketplace.visualstudio.com/items?itemName=vscoss.vscode-ansible
 
 # Managed machines
 
@@ -163,7 +169,7 @@ They are human and machine readable.
  
  **Handlers** are triggered by tasks, and are run once at the end of **plays**, only if the task has made a change!
  
- Create a firstplaybook.yaml file containing:
+ Create a firstplaybook.yml file containing:
  ```yaml
 ---
 # a playbook is a list of plays
@@ -183,11 +189,11 @@ They are human and machine readable.
  ```
 Then you can run the playbook with:
 ```bash
-ansible-playbook firstplaybook.yaml
+ansible-playbook firstplaybook.yml
 ```
 You can have verbose output with -v:
 ```bash
-ansible-playbook -v firstplaybook.yaml
+ansible-playbook -v firstplaybook.yml
 ```
 
 ## Handler
@@ -369,7 +375,7 @@ Let's write a playbook using Jinja templates:
       # we're using the template module (using Jinja2)
       template:
         # this is a source file next to the playbook
-        src: index.j2.html
+        src: index.html.j2
         # the result of the template will on stored on the managed machine at this location
         dest: /var/www/html/index.html
         # you can specify a file mode
@@ -408,9 +414,160 @@ When ran for the first time, this playbook will create the index.html file.
 When ran a second time it will do nothing because the file already exists with the expected content.
 But if you change the variables of the index.j2.html, it will detect a change.
 
+## Reusing code with include
+
+You can compose your playbooks by reusing existing smaller bricks (either other playbooks, or simply lists of tasks).
+
+Let's imagine this **install_apache2.yml** file that is a list of tasks installing apache2:
+```yaml
+---
+- name: install apache2
+  yum: name=httpd state=present
+  when: ansible_os_family == "RedHat"
+
+- name: install apache2
+  apt: name=apache2 update_cache=yes state=present
+  when: ansible_os_family == "Debian"
+```
+
+And let's imagine this update_system.yml playbook updating the system:
+```yaml
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: update apt cache
+      apt: update_cache=yes
+      when: ansible_os_family == "Debian"
+    - name: update yum cache
+      yum: update_cache=yes
+      when: ansible_os_family == "RedHat"
+```
+
+Then you can include those files in a playbook:
+
+```yaml
+---
+# this will include in this playbook all plays of the update_package_cache playbook
+- include: update_package_cache.yml
+# remember a playbook is a list of plays (even if all examples so far only had one)
+- hosts: all
+  become: yes
+  tasks:
+    # this will include the install_apache2 list of tasks in this playbook
+    - include: install_apache2.yml
+```
+
 ## Role
 
-**Roles** are a special kind of playbook that are full self-contained with tasks, variables, files, etc... 
+Includes let us compose files in order to build larger playbooks but it can lead to a mess if you don't organize them properly.
+
+Ansible is also coming with a predefined directory structure. When you're using it, you don't even have to write the include statements. 
+Files automatically imported.
+
+Roles are ways of automatically loading certain vars_files, tasks, and handlers based on a known file structure. Grouping content by roles also allows easy sharing of roles with other users.
+
+Official documentation:
+
+https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html
+
+This is an example project structure:
+```text
+site.yml       -> master playbook
+webservers.yml -> playbook for web servers
+dbservers.yml  -> playbook for db servers
+roles/
+    common/
+        tasks/     -> contains the main list of tasks to be executed by the role.
+        handlers/  -> contains handlers, which may be used by this role or even anywhere outside this role.
+        files/     -> contains files which can be deployed via this role.
+        templates/ -> contains templates which can be deployed via this role.
+        vars/      -> other variables for the role
+        defaults/  -> default variables for the role
+        meta/      ->  defines some meta data for this role
+    webservers/
+        tasks/
+        defaults/
+        meta/
+```
+
+So for instance, define handlers of the apache role in **roles/apache/handlers/main.yml**:
+```yaml
+---
+- name: start apache2 on centos
+  service: name=httpd enabled=yes state=started
+
+- name: start apache2 on ubuntu
+  service: name=apache2 enabled=yes state=started
+```
+
+Then define tasks of the apache role in **roles/apache/tasks/main.yml**:
+**roles/apache/tasks/main.yml**:
+```yaml
+---
+- name: install apache2 on centos
+  yum: name=httpd state=present
+  when: ansible_os_family == "RedHat"
+  notify: start apache2 on centos
+
+- name: install apache2 on ubuntu
+  apt: name=apache2 update_cache=yes state=present
+  when: ansible_os_family == "Debian"
+  notify: start apache2 on ubuntu
+
+```
+
+And finally define the site.yml that is extremely concise thanks to naming conventions:
+**site.yml**:
+```yaml
+---
+- hosts: all
+  become: yes
+  # apply the apache role to all hosts
+  roles:
+    - apache
+```
+
+And as usual:
+```bash
+ansible-playbook site.yml
+```
+
+As this directory structure is a standard it means you can reuse roles written by other people of the Ansible community.
+
+## Ansible Galaxy
+
+Ansible Galaxy is a place where people share their roles so to be reused by others.
+
+https://galaxy.ansible.com/
+
+When you download a role, it is stored in **/etc/ansible/roles** 
+but that can be configured (*roles_path*  in **/etc/ansible/ansible.cfg**)
+so you don't have to use sudo to download roles.
+
+There is a command-line tool for Ansible Galaxy:
+
+```bash
+sudo ansible-galaxy install geerlingguy.apache geerlingguy.mysql
+```
+
+Then you car refer to those roles in your playbooks:
+
+```yaml
+---
+- hosts: all
+  become: yes
+  roles:
+    # this will work on many Linux distributions, Amazon Linux...
+    - geerlingguy.apache
+    # will install a master/slave configuration that will work on many distros...
+    - geerlingguy.mysql
+```
+
+
+```bash
+ansible-galaxy search apache
+```
 
 # Running ad-hoc commands 
 

@@ -1,0 +1,10 @@
+---
+- name: install apache2 on centos
+  yum: name=httpd state=present
+  when: ansible_os_family == "RedHat"
+  notify: start apache2 on centos
+
+- name: install apache2 on ubuntu
+  apt: name=apache2 update_cache=yes state=present
+  when: ansible_os_family == "Debian"
+  notify: start apache2 on ubuntu

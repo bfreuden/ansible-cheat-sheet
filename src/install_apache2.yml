@@ -1,0 +1,8 @@
+---
+- name: install apache2
+  yum: name=httpd state=present
+  when: ansible_os_family == "RedHat"
+
+- name: install apache2
+  apt: name=apache2 update_cache=yes state=present
+  when: ansible_os_family == "Debian"
