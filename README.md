@@ -259,6 +259,8 @@ You can filter the output:
 ansible server1 -m setup -a "filter=*processor*"
 ```
 
+That setup thing is very similar to Salt grains (see https://github.com/bfreuden/salt-cheat-sheet#grains).
+
 ## Registering variable, debug and conditions
 But we don't get GPU information like with Salt :-(
 But we can use the shell:
