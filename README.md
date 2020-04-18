@@ -8,7 +8,7 @@ https://www.youtube.com/watch?v=GMzXAbT_wlk&list=PL4CwCXuy76Fe4Lll2ksYXGtupJNxpi
 Official documentation:
 
 https://docs.ansible.com/
-
+    
 This guide has been written on Ubuntu 18.04
 
 # Installation
@@ -17,7 +17,9 @@ Official installation guide:
 
 https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
 
-Installation can be done via os packages or via Pypi
+Installation can be done via linux distribution packages or via Pypi
+
+## Using Linux distribution packages
 
 ```bash
 $ sudo apt update
@@ -27,6 +29,17 @@ $ sudo apt install ansible
 ```
 
 On Ubuntu 18.04 the default Python is version 2 so Ansible will create a deprecation warning.
+
+## Using Python 
+
+You can install Ansible in a conda env:
+```bash
+conda create -n ansible
+conda activate ansible
+conda install python=3.6.9
+which pip
+pip install ansible
+```
 
 # Tooling
 
@@ -331,6 +344,31 @@ ansible server1 -m setup -a "filter=*processor*"
 ```
 
 That setup thing is very similar to Salt grains (see https://github.com/bfreuden/salt-cheat-sheet#grains).
+
+## Global variables
+
+Official documentation:
+
+https://ansible-tips-and-tricks.readthedocs.io/en/latest/ansible/inventory/#group_vars
+
+You can define variables that will be valid for all hosts of the inventory.
+
+Create a **group_vars/all.yml** file:
+```yaml
+---
+users:
+  - username: bruno
+    groups: ['docker']
+groups_to_create:
+  - name: docker
+``` 
+You can also create variables that will only be defined for specific groups 
+by creating a file named after the group, for instance **group_vars/webservers.yml**:
+```yaml
+---
+apache:
+  port: 80
+```
 
 ## Registering variable, debug and conditions
 
@@ -638,9 +676,13 @@ Then you car refer to those roles in your playbooks:
     - geerlingguy.mysql
 ```
 
-
 ```bash
 ansible-galaxy search apache
+```
+If you want to install a specific version of the playbook:
+
+```bash
+sudo ansible-galaxy install haxorof.docker_ce,2.6.2
 ```
 
 # Interesting modules
