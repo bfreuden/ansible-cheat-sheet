@@ -218,7 +218,8 @@ ensuring the managed machine is always up-to-date.
 
 Salt is more complex than Ansible though (not to mention the minion is consuming a fair amount of RAM). So for small infrastructures Ansible is propably a better solution.
 
-Salt has a salt-ssh module quite similar to Ansible but, as a beginner, I found Ansible easier to use.  
+Salt has a salt-ssh module quite similar to Ansible but, as a beginner, I found Ansible easier to use
+(not to mention that salt-ssh is not on a par with salt).  
 
 ## Playbook structure
 
@@ -230,7 +231,7 @@ You apply a playbook by running the **ansible-playbook** program:
 ansible-playbook <playbook>
 ```
 
-Playbooks are human and machine readable.
+Playbooks are human and machine-readable.
 
 **Playbooks** contains **plays**
 
