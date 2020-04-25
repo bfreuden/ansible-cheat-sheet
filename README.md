@@ -205,7 +205,8 @@ If you feel the need to do so, then you probably want to write a playbook.
 
 As you will discover below, Ansible playbooks will allow you to specify an expected state of managed machines.
 
-Playbooks express a desired state. So when a playbook is played twice, it does nothing the second time.
+Playbooks express a desired state. So when a playbook is played twice, in theory does nothing the second time. 
+In theory... Because it really depends on how modules are implemented...
 
 But because Ansible is agentless, you have to remember applying your new playbooks to old machines. 
 
@@ -214,12 +215,20 @@ If you forget to do so, old machines will not have the same configuration as the
 This is called configuration drift.
 
 Salt (see https://github.com/bfreuden/salt-cheat-sheet) is a better solution to tackle configuration drift because each managed machine has an agent (called a minion) 
-ensuring the managed machine is always up-to-date.
+ensuring the managed machine is always up-to-date. 
 
 Salt is more complex than Ansible though (not to mention the minion is consuming a fair amount of RAM). So for small infrastructures Ansible is propably a better solution.
 
 Salt has a salt-ssh module quite similar to Ansible but, as a beginner, I found Ansible easier to use
 (not to mention that salt-ssh is not on a par with salt).  
+
+## Salt vs. Ansible
+
+Not an expert talking here... just my interpretation:
+
+Salt is really focused on maintaining a state, and mutating that state.
+
+Ansible is more a fire and forget provisioning tool.
 
 ## Playbook structure
 
@@ -722,5 +731,12 @@ ansible all -m copy -a "src=/etc/hosts dest=/tmp/hosts"
 ```
 If you run it the second time it will do nothing and say that nothing has changed.
 
+## sysctl
 
-
+Used to update /etc/sysctl.conf file:
+```yaml
+- name: Set max_map_count for Elasticsearch
+  sysctl:
+      name: vm.max_map_count
+      value: '262144'
+```
