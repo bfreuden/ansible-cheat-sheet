@@ -11,6 +11,41 @@ https://docs.ansible.com/
     
 This guide has been written on Ubuntu 18.04
 
+- [Installation](#installation)
+  * [Using Linux distribution packages](#using-linux-distribution-packages)
+  * [Using Python](#using-python)
+- [Tooling](#tooling)
+- [Managed machines](#managed-machines)
+- [Machines](#machines)
+  * [Control node](#control-node)
+  * [Inventory](#inventory)
+- [Running ad-hoc commands](#running-ad-hoc-commands)
+  * [Examples](#examples)
+- [Playbooks](#playbooks)
+  * [Maintaining state & configuration drift](#maintaining-state---configuration-drift)
+  * [Salt vs. Ansible](#salt-vs-ansible)
+  * [Playbook structure](#playbook-structure)
+  * [Module](#module)
+  * [Handler](#handler)
+  * [Variables](#variables)
+  * [Global variables](#global-variables)
+  * [Registering variable, debug and conditions](#registering-variable--debug-and-conditions)
+  * [Loops](#loops)
+  * [Jinja templates](#jinja-templates)
+  * [Reusing code with include](#reusing-code-with-include)
+  * [Role](#role)
+  * [Ansible Galaxy](#ansible-galaxy)
+- [Interesting modules](#interesting-modules)
+  * [command](#command)
+  * [shell](#shell)
+  * [raw](#raw)
+  * [file](#file)
+  * [copy](#copy)
+  * [sysctl](#sysctl)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
+
 # Installation
 
 Official installation guide:
