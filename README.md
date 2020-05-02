@@ -705,20 +705,26 @@ so you don't have to use sudo to download roles.
 There is a command-line tool for Ansible Galaxy:
 
 ```bash
-sudo ansible-galaxy install geerlingguy.apache geerlingguy.mysql
+sudo ansible-galaxy install geerlingguy.apache geerlingguy.mysql geerlingguy.docker
 ```
-
-Then you car refer to those roles in your playbooks:
+Then you can refer to those roles in your playbooks:
 
 ```yaml
 ---
 - hosts: all
   become: yes
+  vars:
+    docker_install_compose: true
+    docker_users:
+    - john
+    - jane
   roles:
     # this will work on many Linux distributions, Amazon Linux...
     - geerlingguy.apache
     # will install a master/slave configuration that will work on many distros...
     - geerlingguy.mysql
+    # install docker ce, docker-compose then add 'john' and 'jane' to the 'docker' group
+    - geerlingguy.docker
 ```
 
 ```bash
@@ -727,7 +733,7 @@ ansible-galaxy search apache
 If you want to install a specific version of the playbook:
 
 ```bash
-sudo ansible-galaxy install haxorof.docker_ce,2.6.2
+sudo ansible-galaxy install geerlingguy.nfs,1.5.0
 ```
 
 # Interesting modules
